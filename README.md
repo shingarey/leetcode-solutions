@@ -19,6 +19,10 @@ solutions to the leetcode programming problems
 * Depth-First Traversal
 * Threaded Trees - Stackless Depth-First Traversal
 
+#### Breadth-First Traversal
+
+Implementation of this kind of traversal is straightforward when a queue is used. Consider a top-down, left-to-right, breadth-first traversal. After a node is visited, its children, if any, are placed at the end of the queue, and the node at the beginning of the queue is visited. Considering that for a node on level n, its children are on level n + 1, by placing these children at the end of the queue, they are visited after all nodes from level n are visited. Thus, the restriction that all nodes on level n must be visited before visiting any nodes on level n + 1 is met.
+
 #### Depth-First Traversal
 
 There are three tasks of interest in this type of traversal:
@@ -40,3 +44,5 @@ LRV—postorder tree traversal
 Short and elegant functions can be implemented directly from the symbolic descriptions of these three traversal. These functions may seem too simplistic, but their real power lies in recursion, in fact, double recursion. The real job is done by the system on the run-time stack. This simplifies coding but lays a heavy burden upon the system.
 
 [104. Maximum Depth of Binary Tree](https://leetcode.com/problems/maximum-depth-of-binary-tree/) (easy)  - [solution](solutions/104_maximum-depth-of-binary-tree)
+
+[226. Invert Binary Tree](https://leetcode.com/problems/invert-binary-tree/) (easy)  - [solution](solutions/226_invert_binary_tree)
