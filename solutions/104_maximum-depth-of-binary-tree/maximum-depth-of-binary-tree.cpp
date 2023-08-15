@@ -10,6 +10,8 @@
  * };
  */
 
+#include<algorithm>
+
 struct TreeNode
 {
     int val;
@@ -28,7 +30,7 @@ public:
         // iterate recursively over each node
         if (root != nullptr)
         {
-            return 1 + max(maxDepth(root->left), maxDepth(root->right));
+            return 1 + std::max(maxDepth(root->left), maxDepth(root->right));
         }
         return 0;
     }
