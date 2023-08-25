@@ -71,7 +71,7 @@ Complexity
 
 Can be implemented as a doubled linked list. C++ implementation:
 
-![logo](pics/deque_cpp.png)
+![deque_cpp](pics/deque_cpp.png)
 
 To find the 3rd element of the deque:
 
@@ -117,9 +117,63 @@ Complexity
 
 ### Strings and string_views
 
-## Assosiative containers
+## Assosiative containers (AC)
+
+* Key Uniqueness
+  * in map and set each key must be unique (multimap and multiset do not have this restriction)
+  * are designed to be especially efficient in accessing the elements by their key.
+* Element composition
+  * in map and multimap each element is composed from the key and mapped value
+  * in set and multiset each element is a key. There is no value.
+
+### Ordered ACs (map, set, multimap, multiset)
+
+Implemented with self-balancing binary search trees.
+
+Complexity
+
+* Searching: O(log n)
+* Inserting: O(log n)
+* Removing: O(log n)
+* Accessing: O(log n)
+
+Iterators in map are bi-derictional, only it++ and it-- are allowed. But nof e.g. it+5
+
+Use local algorithms (e.g. lower_bound()), as they _know_ about the structure of the container and are more efficient. E.g. global lower_bound() searches with O(n) for not-randon-access iterators.
+
+### Unordered ACs (unordered_map/multimap, unordered_set/multiset)
+
+Implemented with hash table variants.
+
+Complexity
+
+* Searching: O(1)
+* Inserting: O(1)
+* Removing: O(1)
+* Accessing: O(1)
+
+Use forward iterators. Iterators can be invalidated by inserting/re-hashing.
 
 ### Hash Tables
+
+In simple implementation, array or linked lists and a hash code function are used.
+
+![hash_table](pics/hash_table.png)
+
+```cpp
+std::vector<std::list<T>> hash_table;
+
+template<typename<T>>
+int hash(const T & key){
+    // generate and return hash value from the key based on the keys type
+}
+
+template<typename<T>, typename<U>>
+void insert_into_hash_table(const T& key, const U& value){
+    int index = hash(key);
+    hash_table[index].push_back(value);
+}
+```
 
 #### Programming assignments hash tables
 
@@ -133,26 +187,89 @@ A tree is actually a type of graph, but not all graphs are trees. Simply put, a 
 
 #### Binary Search Tree (BST)
 
+* can be implemented as a linked list structure.
+* can be implemented as a vecto with 2 pointers to vector fields (indecies of the vector). Is used, e.g. for heap sort
+  * may be iconvinient -> unused cells by re-sizing/moving elements in the vector
+
+```cpp
+template<class T>
+class BSTNode{
+    public:
+    BSTNode(){
+        left = right = nullptr;
+    }
+    BSTNode(const T& e, BSTNode<T> *l=nullptr, BSTNode<T> *r=nullptr){
+        el = e;
+        left = l;
+        right = r;
+    }
+    T el;
+    BSTNode<T> *left, *right;
+};
+
+class BST{
+    protected:
+    BSTNode<T> * root;
+    ...
+};
+```
+
+Searching a tree:
+```cpp
+T* BST<T>::search(BSTNode<T>* p, const T & el) const{
+    while (p != nullptr){
+        if (el = p->el){
+            return &p->el;
+        }
+        else if (el < p->el){
+            p = p->left;
+        }
+        else {
+            p = p->right;
+        } 
+        return 0;
+    }
+}
+```
+
 ##### Binary tree vs. binary search tree
 
 A binary tree is a tree in which each node has up to two children. A node is called a "leaf" node if it has no children. A binary search tree is a binary tree in which every node fits a specific ordering property: all left descendents <= n < all right descendents. This must be true for each node n.
 
 #### Binary Heaps (Min/max-Heaps)
 
+##### Min Heap
+
 A min-heap is a complete binary tree (that is, totally filled other than the rightmost elements on the last level) where each node is smaller than its children. The root, therefore, is the minimum element in the tree. We have two key operations on a min-heap: ```insert``` and ```extract_min```.
 
-##### Insert
+###### Insert
 
 When we insert into a min-heap, we always start by inserting the element at the bottom. We insert at the rightmost spot so as to maintain the complete tree property. Then, we "fix"the tree by swapping the new element with its parent, until we find an appropriate spot for
 the element. We essentially bubble up the minimum element.
 
 This takes O( log n) time, where n is the number of nodes in the heap.
 
-##### Extract Minimum Element
+###### Extract Minimum Element
 
 Finding the minimum element of a min-heap is easy: it's always at the top. To remove the element, we first remove the minimum element and swap it with the last element on the heap (the bottemmost, rightmost element). Then, we bubble down this element, swapping it with one of the children until the min-heap property is restored. There's no inherent ordering between the left and right element, but you'll need to take the smaller one in order to maintain the min-heap ordering.
 
 This algorithm will take 0( log n) time.
+
+##### Max-heap
+
+* kind of a binary tree
+* the value of each node is greater than or equal to the values stored in each of its children
+* the tree is balanced
+* is an excellent way to implement priority queues
+
+Use vector by default, deque can be used. Keeps element with the highest priority in the front of the queue.
+
+Complexity
+
+* Searching: O(log n)
+* Inserting: O(log n)
+* Removing: O(log n)
+* Accessing: O(log n)
 
 #### Programming assignments trees
 
@@ -169,7 +286,7 @@ Graphs can be either directed or undirected. While directed edges are like a one
 * The graph might consist of multiple isolated subgraphs. If there is a path between every pair of vertices, it is called a "connected graph:'
 * The graph can also have cycles (or not). An "acyclic graph" is one without cycles.
 
-In terms of programming, there are two common ways to represent a graph.
+There are two common ways to represent a graph.
 
 ##### Adjacency List
 
@@ -189,6 +306,30 @@ class Node {
 ```
 
 You don't necessarily need any additional classes to represent a graph. An array (or a hash table) of lists (arrays, arraylists, linked lists, etc.) can store the adjacency list. This is a bit more compact, but it isn't quite as clean. We tend to use node classes unless there's a compelling reason not to.
+
+![graph_adj_list2](pics/graph_adj_list2.png)
+![graph_adj_list1](pics/graph_adj_list1.png)
+
+```cpp
+#include<list>
+#include<unordered_map>
+
+template<typename T>
+class Graph{
+    public:
+    Graph();
+    ~Graph();
+    // copy and move operators are omitted
+
+    public:
+    void insert_edge(const T& source, const T& target);
+    void remove_edge(const T& source, const T& target);
+    bool connected(const T& source, const T& target);
+
+    private:
+    unordered_map<T, std::list<T>> hash_table;
+}
+```
 
 An adjacency list is a collection of linked lists or vectors that represent the connections between vertices in a graph. Each linked list or vector corresponds to a vertex in the graph, and contains a list of the other vertices that are connected to it.
 
@@ -348,7 +489,46 @@ Total Time Complexity: O(E + V). Note: E: Edge, V: Node
 
 ### Classes
 
+#### Relationships
+
+* aggregation - "has-a" question (a car _has an_) engine
+* composition - "can_have-a" question (a car _can have_ passengers)
+* inheritance - "is-a" question (car _is a_ vehicle)
+  * parent class is a generalization (vehicle)
+  * child class is a specialization (car)
+  * use it only if absolutely necessary
+  * protected inh. - private to the class users, but public for derived classes
+* polymorhism - it allows subclasses to have their own implementation for the functions derived from the base class
+  * to accomplish this virtual functions are used.
+  * pure virtual function - ```virtual void play() = 0``` - is not allowing to declare an instance of a class
+* abstract class(interface) - the class that exists to be inhereted
+
 ### Singleton
+
+```cpp
+class Warehouse{
+    public:
+    static create_instance(){ // can be used without declaring an instance, see below
+        if (instance == nullptr){
+            instance_ = new Warehouse();
+        }
+        return instance_;
+    }
+    static remove_instance(){
+        delete instance_;
+        instance_ = nullptr;
+    }
+    
+    private:
+    Warehouse()  = default; // it is not possible to call the constructor
+
+    private:
+    static Warehouse instance_ = nullptr;
+};
+
+Warehouse * w = Warehouse::create_instance();
+Warehouse::remove_instance();
+```
 
 ## Algorithms
 
@@ -416,3 +596,95 @@ Runtime: O(n log(n)) average, O(n2 ) worst case. Memory: 0( log(n))
 
 In quick sort we pick a random element and partition the array, such that all numbers that are less than the partitioning element come before all elements that are greater than it. The partitioning can be performed efficiently through a series of swaps. If we repeatedly partition the array (and its sub-arrays) around an element, the array will eventually become sorted.
 
+### Algorithms in std
+
+#### Finding
+
+```cpp
+// find() - accessing the value with (*)
+vector<int> v {1,1,2,3,5,8,13};
+auto it = find(v.begin(), v.end(), 3);
+
+// find_if() - returns an iterator to the first element for which the predicate return True
+auto it = find_if(v.begin(), v.end(), [] (int const n){return n > 10;});
+
+// find_if_not() - same as find_if() but for the predicate that returns False
+
+
+// Ranges
+
+// search() - returns an iterator to the first element of occurrence
+auto it = search(text.begin(), text.end(), word.begin(), word.end())
+
+// find_end() - returns an iterator to the first element of occurance
+
+// search_n(v.begin(), v.end(), _number_of_occurances_, _value_)
+auto it = search_n(v.begin(), v.end(), 2, 0)
+
+// binary_search() - returns boolean
+
+```
+
+#### Searching
+
+```cpp
+//sort()
+sort(v.begin(), v.end(), greater<>()); // descend sorting
+
+// partial_sort()
+vector<int> v{3,13,5,8,1,2,1};
+partial_sort(v.begin(), v.egin()+4, v.end()); // v = {1,1,2,3,?,?,?}
+
+// partial_sort_copy()
+
+//merge
+merge(v1.begin(), v1.end(), v2.begin(), v2.end(), inserter(l3, l3.begin()))
+
+is_sorted()
+includes()
+set_union()
+
+```
+
+## Bit manipulation
+
+### C-style:
+
+* define a bit flag, e.g. with macros: 
+  ``` cpp
+  #define BORDER_NONE 0x00;
+  #define BORDER_NONE 0x01;
+  ...
+  ```
+
+* adding a flag:            value |= FLAG;
+* removing flag:            value &= ~FLAG;
+* testing if flag is set:   value & FLAG == FLAG
+
+### C++-style
+
+  ``` cpp
+  #include<bitset>
+
+  bitset<8> b1;         // [0,0,0,0,0,0,0,0]
+  bitset<8> b2{10};     // [0,0,0,0,1,0,1,0]
+  bitset<8> b3{"1010"s};
+
+  // modify
+  bitset<8> b1{42};     // [0,0,1,0,1,0,1,0]
+  bitset<8> b2{11};     // [0,0,0,0,1,0,1,1]
+  auto  b3 = b1 | b2;   // [0,0,1,0,1,0,1,1]
+  auto  b4 = b1 & b2;   // [0,0,0,0,1,0,1,0]
+  // xor
+  auto  b5 = b1 ^ b2;   // [1,1,0,1,1,1,1,0]
+  // not
+  auto  b6 = ~b1;       // [1,1,0,1,0,1,0,1]
+
+
+  // shift
+  auto b7 =  b1 << 2;   // [1,0,1,0,1,0,0,0]
+  auto b8 =  b1 >> 2;   // [0,0,1,0,1,0,1,0]
+
+  unsigned char n = 0b00111100;
+
+  ```
